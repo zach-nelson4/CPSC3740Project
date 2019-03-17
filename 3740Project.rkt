@@ -1,7 +1,7 @@
 #lang racket
 
 ;CPSC 3740 Final Project
-;Zachary Nelson
+;Matthew Davison, Taranjot Kaur, Zachary Nelson
 ;February 26th 2019
 
 
