@@ -157,3 +157,19 @@
 (startEval '(cons (2 3) 1))
 (startEval '(pair? (1 2 3)))
 (startEval '(if (= (+ 2 4) (* 2 3)) 7 0))
+
+;lambda func for one expression x
+(lambda (x) (+ x x))            
+
+((lambda (x) (+ x x)) 3)                
+;lambda func with let for x and y
+(define subtract
+  (lambda (x y)
+    (- y x)))
+(subtract 4 9)                 
+
+(define adding
+  (let ((x 3))
+    (lambda (y) (+ x y))))
+(adding 5)            
+
