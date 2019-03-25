@@ -172,4 +172,15 @@
   (let ((x 3))
     (lambda (y) (+ x y))))
 (adding 5)            
-
+;defining letrec to for even odd numbers
+(letrec ((even?
+          (lambda (n)
+            (if (zero? n)
+                #t
+                (odd? (- n 1)))))
+         (odd?
+          (lambda (n)
+            (if (zero? n)
+                #f
+                (even? (- n 1))))))
+  (even? 10)) 
