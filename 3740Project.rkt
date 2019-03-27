@@ -5,14 +5,32 @@
 ;February 26th 2019
 
 
+(define (startEval2 list1 list2 list3)
+
+  (cond
+    
+    
+    [(and (pair? list1) (equal? (car list1) '+))
+          (myAdd(startEval2 (cdr list1) list2 list3)(startEval2 (caddr list1)(cadr list2)(cadr list3)))]
+
+    [(and (pair? list1) (equal? (car list1) (car list3)))
+     (car list2)]
+    [(equal? list1 list3)
+     list2]
+    [else 0]
+    )
+  
+  )
+
 ;Start Eval Function
-;Takes in a list which is to be evaluated
+;Takes in a list which is to be evaluate
+
 (define (startEval list1)
   (cond
     ;If there is nothing in the list, return the empty list
     [(null? list1) '()]
     [(not(pair? list1)) list1]
-    
+
     [(equal? (car list1) 'quote)
      ;Evaluate the next element to see if it needs any further work done, then do the same for the one after
      (MyQuote(startEval(cadr list1)))]
@@ -21,6 +39,7 @@
     [(equal? (car list1) '+)
      ;Evaluate the next element to see if it needs any further work done, then do the same for the one after
      (myAdd(startEval(cadr list1))(startEval(caddr list1)))]
+
     ;---------------------------------------------------------------------------------
     ;If the first item in the list is a subtraction sign, subtract the next two items together
     [(equal? (car list1) '-)
@@ -90,6 +109,16 @@
      ;Evaluate the next element to see if it needs any further work done, then do the same for the one after
      (MyPair(startEval(cadr list1)))]
     ;---------------------------------------------------------------------------------
+
+     ;
+     ;[(pair? (car list1)
+     ;        (cond(
+     ;              [(equal? (cadr list1) 'lambda) MyLambda(list1)];
+     ;              )))]
+
+     
+             
+     
      [else list1]
     )
   )
@@ -151,36 +180,13 @@
   (pair? list1) 
   )
 
+;--------
 
-(startEval '(car (1 2 3)))
-(startEval '(cdr (1 2 3)))
-(startEval '(cons (2 3) 1))
-(startEval '(pair? (1 2 3)))
-(startEval '(if (= (+ 2 4) (* 2 3)) 7 0))
+(define (MyLambda list1)
+  (startEval2 (caddr (car list1)) (cdr list1) (cadr (car list1)))
+  )
 
-;lambda func for one expression x
-(lambda (x) (+ x x))            
 
-((lambda (x) (+ x x)) 3)                
-;lambda func with let for x and y
-(define subtract
-  (lambda (x y)
-    (- y x)))
-(subtract 4 9)                 
+(MyLambda '((lambda (x y) (+ x y)) 10 5))
 
-(define adding
-  (let ((x 3))
-    (lambda (y) (+ x y))))
-(adding 5)            
-;defining letrec to for even odd numbers
-(letrec ((even?
-          (lambda (n)
-            (if (zero? n)
-                #t
-                (odd? (- n 1)))))
-         (odd?
-          (lambda (n)
-            (if (zero? n)
-                #f
-                (even? (- n 1))))))
-  (even? 10)) 
+
