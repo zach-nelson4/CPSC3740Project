@@ -110,11 +110,8 @@
      (MyPair(startEval(cadr list1)))]
     ;---------------------------------------------------------------------------------
 
-     ;
-     ;[(pair? (car list1)
-     ;        (cond(
-     ;              [(equal? (cadr list1) 'lambda) MyLambda(list1)];
-     ;              )))]
+     [(equal? (caar list1) 'lambda) (MyLambda list1)];
+     
 
      
              
