@@ -11,10 +11,11 @@
     
     
     [(and (pair? list1) (equal? (car list1) '+))
-          (myAdd(startEval2 (cdr list1) list2 list3)(startEval2 (caddr list1)(cadr list2)(cadr list3)))]
+          (myAdd(startEval2 (cdr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
 
     [(and (pair? list1) (equal? (car list1) (car list3)))
      (car list2)]
+    [(and (pair? list3)) (startEval2 list1 (cadr list2) (cadr list3))]
     [(equal? list1 list3)
      list2]
     [else 0]
@@ -110,11 +111,7 @@
      (MyPair(startEval(cadr list1)))]
     ;---------------------------------------------------------------------------------
 
-     [(equal? (caar list1) 'lambda) (MyLambda list1)];
-     
-
-     
-             
+     [(equal? (caar list1) 'lambda) (MyLambda list1)];     
      
      [else list1]
     )
@@ -186,4 +183,4 @@
 
 (MyLambda '((lambda (x y) (+ x y)) 10 5))
 
-
+(startEval '((lambda (x y) (+ x (+ x y))) 5 2))
