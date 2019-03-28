@@ -12,8 +12,10 @@
           (MyQuote(startEval2 (MyRemove (cadr list1)) list2 list3))]
     [(and (pair? list1) (equal? (car list1) 'lambda))
           (MyLambda(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
+    
     [(and (pair? list1) (equal? (car list1) 'let))
           (MyLet(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
+    
     [(and (pair? list1) (equal? (car list1) 'letrec))
           (MyLetrec(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
     [(and (pair? list1) (equal? (car list1) '+))
@@ -155,7 +157,7 @@
      ;Evaluate the next element to see if it needs any further work done, then do the same for the one after
      (MyPair(startEval(cadr list1)))]
     ;---------------------------------------------------------------------------------
-
+     [(equal? (car list1) 'let) (MyLet list1)];
      [(equal? (caar list1) 'lambda) (MyLambda list1)];     
      
      [else list1]
@@ -238,20 +240,36 @@
 (define (MyLambda list1)
   (startEval2 (caddr (car list1)) (cdr list1) (cadr (car list1)))
   )
+
 (define (MyLet list1)
-  (startEval2 (caddr (car list1)) (cdr list1) (cadr (car list1)))
+  (startEval2 (caddr list1) (MyLetAttributesValues (cadr list1)) (MyLetAttributesNames (cadr list1)))
+)
+(define (MyLetAttributesNames list1)
+  (cond [(not(pair? list1)) list1]
+        ;[(equal? (length list1) 1) (car(car list1))]
+        [(pair? list1) (cons (car(car list1)) (MyLetAttributesNames (cdr list1)))]
+        ;[(and (pair? list1) (not(equal? (car(car list1)) '()))) (car(car list1))]
   )
+)
+(define (MyLetAttributesValues list1)
+   (cond [(not(pair? list1)) list1]
+        ;[(equal? (length list1) 1) (car(cdr(car list1)))]
+        [(pair? list1) (cons (car(cdr(car list1))) (MyLetAttributesValues (cdr list1)))]
+        ;[(and (pair? list1) (not(equal? (cdr(car list1)) '()))) (cdr(car list1))]
+  )
+)
 (define (MyLetrec list1)
   (startEval2 (caddr (car list1)) (cdr list1) (cadr (car list1)))
   )
 
 
 ;(MyLambda '((lambda (x y) (+ x y)) 10 5))
-(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
-(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
+;(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
+;(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
+;(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
 ;(startEval '((lambda (x y) (car x)) (3 1) (4 2)))
 ;(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
 ;(startEval '((lambda (x y) (+ (/ x y) (/ x y))) 6 2))
-
-(startEval '((lambda (x y z) (+ (* y x) (+ x z))) 5 2 1))
-
+(caadr '(let ((x 3) (y 2)) (+ x y)))
+(startEval '(let ((x 3) (y 2) (z 2)) (+ x (+ y z))))
+(startEval '(let ((x (1  2 3)) (y (4 5 6))) (cons x y)))
