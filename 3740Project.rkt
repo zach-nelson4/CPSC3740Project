@@ -52,14 +52,18 @@
      (car list2)]
     [(and (pair? list3) (and (not(pair? list1)) (equal? list1 (car list3))))
      (car list2)]
+
+    [(and( not(pair? list1)) (not(pair? list3))) '()]
+    [(and (pair? list3) (and (not(pair? list1)) (not(equal? list1 (car list3))))) (startEval2 list1 (cdr list2) (cdr list3))]
+
     [(and (not (pair? list3)) (and (not(pair? list1)) (equal? list1 list3)))
      list2]
     [(and (not (pair? list3)) (and (not(pair? list1)) (not(equal? list1 list3))))
-     '()]
+     (startEval2 list1 list2 list3)]
     [(and (pair? list3)) (startEval2 list1 (cadr list2) (cadr list3))]
     [(equal? list1 list3)
      list2]
-    [else '()]
+    [else 0]
     )
   
   )
@@ -243,9 +247,11 @@
 
 
 ;(MyLambda '((lambda (x y) (+ x y)) 10 5))
-;(startEval '((lambda (x y z) (car z)) (3 1) (2 3) (4 3)))
+(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
+(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
 ;(startEval '((lambda (x y) (car x)) (3 1) (4 2)))
-(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
-(startEval '((lambda (x y) (+ (/ x y) (/ x y))) 6 2))
+;(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
+;(startEval '((lambda (x y) (+ (/ x y) (/ x y))) 6 2))
 
-((lambda (x y z) (+ (* y x) (+ x z))) 5 2 1)
+(startEval '((lambda (x y z) (+ (* y x) (+ x z))) 5 2 1))
+
