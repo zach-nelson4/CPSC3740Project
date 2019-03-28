@@ -181,6 +181,6 @@
   )
 
 
-(MyLambda '((lambda (x y) (+ x y)) 10 5))
+;(MyLambda '((lambda (x y) (+ x y)) 10 5))
 
 (startEval '((lambda (x y) (+ x (+ x y))) 5 2))
