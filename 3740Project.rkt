@@ -10,14 +10,6 @@
   (cond
     [(and (pair? list1) (equal? (car list1) 'quote))
           (MyQuote(startEval2 (MyRemove (cadr list1)) list2 list3))]
-    [(and (pair? list1) (equal? (car list1) 'lambda))
-          (MyLambda(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
-    
-    [(and (pair? list1) (equal? (car list1) 'let))
-          (MyLet(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
-    
-    [(and (pair? list1) (equal? (car list1) 'letrec))
-          (MyLetrec(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
     [(and (pair? list1) (equal? (car list1) '+))
           (MyAdd(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
     [(and (pair? list1) (equal? (car list1) '-))
@@ -48,24 +40,36 @@
           (MyCons(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
     [(and (pair? list1) (equal? (car list1) 'pair))
           (MyPair(startEval2 (cadr list1) list2 list3))]
+    [(and (pair? list1) (and (pair? (car list1)) (equal? (caar list1) 'lambda)))
+           (MyLambda list1)]
+    [(and (pair? list1) (equal? (car list1) 'let))
+          (MyLet list1)]
+    [(and (pair? list1) (equal? (car list1) 'letrec))
+          (MyLetrec list1)]
+
+    [(and (pair? list3) (and (pair? list1) (and (pair? (cdr list1)) (and (equal? (car(cdr(car list2))) "UNDEF") (equal? (car list1) (car list3))))))
+     (startEval2 (cons (caar list2) (cdr list1)) list2 list3)]
     
-
-    [(and (pair? list3) (and (pair? list1) (equal? (car list1) (car list3))))
-     (car list2)]
+    [(and (pair? list3) (and (pair? list1) (and (pair? (cdr list1)) (equal? (car list1) (car list3)))))
+     (startEval2 (car list2) list2 list3)]
+    [(and (pair? list3) (and (pair? list1) (and (not(pair? (car list1))) (equal? (car list1) (car list3)))))
+     (startEval2 (car list2) list2 list3)]
     [(and (pair? list3) (and (not(pair? list1)) (equal? list1 (car list3))))
-     (car list2)]
-
-    [(and( not(pair? list1)) (not(pair? list3))) '()]
+     (startEval2 (car list2) list2  list3)]
+    ;here fix
     [(and (pair? list3) (and (not(pair? list1)) (not(equal? list1 (car list3))))) (startEval2 list1 (cdr list2) (cdr list3))]
 
     [(and (not (pair? list3)) (and (not(pair? list1)) (equal? list1 list3)))
      list2]
+    [(and (empty? list2) (empty? list3)) list1]
     [(and (not (pair? list3)) (and (not(pair? list1)) (not(equal? list1 list3))))
      (startEval2 list1 list2 list3)]
-    [(and (pair? list3)) (startEval2 list1 (cadr list2) (cadr list3))]
-    [(equal? list1 list3)
-     list2]
-    [else 0]
+    [(and (pair? list3) (and (pair? list2) (> (length list2) 1))) (startEval2 list1 (cadr list2) (cadr list3))]
+    [(and (pair? list3) (pair? list2)) (startEval2 list1 (car list2) (car list3))]
+    ;[(and (equal? (car list1) (car list3)))]
+    ;[(equal? list1 list3)
+     ;list2]
+    [else list1]
     )
   
   )
@@ -158,6 +162,7 @@
      (MyPair(startEval(cadr list1)))]
     ;---------------------------------------------------------------------------------
      [(equal? (car list1) 'let) (MyLet list1)];
+     [(equal? (car list1) 'letrec) (MyLetrec list1)];
      [(equal? (caar list1) 'lambda) (MyLambda list1)];     
      
      [else list1]
@@ -259,17 +264,41 @@
   )
 )
 (define (MyLetrec list1)
-  (startEval2 (caddr (car list1)) (cdr list1) (cadr (car list1)))
+  (startEval2 (caddr list1) (MyLetrecAttributesValues (cadr list1)) (MyLetrecAttributesNames (cadr list1)))
+)
+(define (MyLetrecAttributesNames list1)
+  (cond [(not(pair? list1)) list1]
+        ;[(equal? (length list1) 1) (car(car list1))]
+        [(pair? list1) (cons (car(car list1)) (MyLetrecAttributesNames (cdr list1)))]
+        ;[(and (pair? list1) (not(equal? (car(car list1)) '()))) (car(car list1))]
   )
+)
+(define (MyLetrecAttributesValues list1)
+   (cond [(not(pair? list1)) list1]
+        ;[(equal? (length list1) 1) (car(cdr(car list1)))]
+        [(pair? list1) (cons (cons (car(cdr(car list1))) (list "UNDEF")) (MyLetrecAttributesValues (cdr list1)))]
+        ;[(and (pair? list1) (not(equal? (cdr(car list1)) '()))) (cdr(car list1))]
+  )
+)
 
 
 ;(MyLambda '((lambda (x y) (+ x y)) 10 5))
 ;(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
-;(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
-;(startEval '((lambda (x y z a) (< a z)) 3 2 1 4))
+;(startEval '((lambda (x y z a) (* a z)) 3 2 5 4))
+;(startEval '((lambda (x y z a) (> a z)) 3 2 1 4))
 ;(startEval '((lambda (x y) (car x)) (3 1) (4 2)))
 ;(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
-;(startEval '((lambda (x y) (+ (/ x y) (/ x y))) 6 2))
-(caadr '(let ((x 3) (y 2)) (+ x y)))
-(startEval '(let ((x 3) (y 2) (z 2)) (+ x (+ y z))))
-(startEval '(let ((x (1  2 3)) (y (4 5 6))) (cons x y)))
+;(startEval '((lambda (x y) (+ x y)) 2 (+ 3 3)))
+;(caadr '(let ((x 3) (y 2)) (+ x y)))
+;(startEval '(let ([x 3] [y 2] [z 2]) (+ x (+ y z))))
+;(startEval '(let ((x (1  2 3)) (y (4 5 6))) (cons x y)))
+;((lambda (n) (* 2 n)) 5)
+
+;(startEval '(let ([x 3]) (+ x x)))
+;(startEval '((lambda (x) (/ x x)) 2))
+;(letrec ([fact (lambda (n) (* 2 n))])(fact 5))
+;(startEval '(letrec ([fact (lambda (n) (* 2 n))])(fact 5)))
+;(cdr(car '(((lambda (n) (* 2 n)) "UNDEF"))))
+;(startEval '(letrec ([fact (lambda (n) (* 2 n))])(fact 5)))
+(print
+(startEval'(letrec ((fact(lambda (x) (if (= x 0) (quote 1) (* x (fact (- x 1))))))) (fact 10))))
