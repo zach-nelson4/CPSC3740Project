@@ -81,7 +81,9 @@
     ;If the first item in the list is a if function, check condition then evaluate
     [(equal? (car list1) 'if)
      ;Evaluate the next element to see if it needs any further work done, then do the same for the one after
-     (MyIf(startEval(cadr list1)) (startEval(caddr list1)) (startEval(cadddr list1)))]
+     (if (startEval (cadr list1) )
+         (startEval (caddr list1) )
+         (startEval (cadddr list1) ))]
 
     ;If the first item in the list is car
      [(equal? (car list1) 'car)
@@ -112,9 +114,6 @@
 
      [else list1]
     )
-  )
-(define (myShiftList list1)
-  (append (cdr list1) (car list))
   )
 
 ;--------------------------------------------------
@@ -239,11 +238,6 @@
 (define (MyDiv num1 num2)
   (/ num1 num2)
   )
-;--------------------------------------------------------
-;myIf Function, given a condition, return true or false.
-(define (MyIf cond1 action1 action2)
-  (if cond1 action1 action2)
-  )
 ;-------------------------------------------------------
 ;myEqual Function, given two numbers, return true if equal, false if not.
 (define (MyEqual action1 action2)
@@ -302,22 +296,22 @@
   )
 ;------------------------------------------------------
 ;MyRemove function. Removes the first element of the list
-(define (MyRemove lst)
-  (if (null? lst)
+(define (MyRemove ele)
+  (if (null? ele)
       '()
-      (my-append (car lst) (cdr lst))))
+      (MyAppend (car ele) (cdr ele))))
 
 ;------------------------------------------------------
-;my-append function. Appens the rhs to the lhs.
-(define (my-append lhs rhs)
+;MyAppend function. Appends the right to the left.
+(define (MyAppend left right)
   (cond
-    [(null? lhs)
-     (MyRemove rhs)]
-    [(pair? lhs)
-     (cons (car lhs)
-           (my-append (cdr lhs) rhs))]
+    [(null? left)
+     (MyRemove right)]
+    [(pair? left)
+     (cons (car left)
+           (MyAppend (cdr left) right))]
     [else
-     (cons lhs (MyRemove rhs))]))
+     (cons left (MyRemove right))]))
 ;------------------------------------------------------
 ;MyLambda function. Given a lambda function, evaluate it by passing it into startEval2. See startEval2's comments for more information.
 
@@ -387,4 +381,7 @@
 ;(startEval '(letrec ([fact (lambda (n) (+ 2 n))])(fact 5)))
 ;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 6)))
 ;(letrec ([fact (lambda (x y z) (if (= x 0) 1 (* x (fact (- x 1) y z))))]) (fact 6 7 8))
-;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 6)))
+(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 10)))
+(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact (+ 1 9))))
+((lambda (n) (* 2 n)) 5)
+((lambda (n) (* 2 n)) (/ 10 2))
