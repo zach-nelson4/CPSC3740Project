@@ -316,7 +316,10 @@
 ;MyLambda function. Given a lambda function, evaluate it by passing it into startEval2. See startEval2's comments for more information.
 
 (define (MyLambda list1 list2 list3)
-  (startEval2 (caddr (car list1)) (append (list (startEval2 (cdr list1) list2 list3)) list2) (append (cadr (car list1)) list3))
+  ;(startEval2 (caddr (car list1)) (append (list (startEval2 (cdr list1) list2 list3)) list2) (append (cadr (car list1)) list3))
+  (if (pair? (startEval2 (cdr list1) list2 list3)) 
+  (startEval2 (caddr (car list1)) (append (cdr list1) list2) (append (cadr (car list1)) list3))
+  (startEval2 (caddr (car list1)) (append (list (startEval2 (cdr list1) list2 list3)) list2) (append (cadr (car list1)) list3)))
   )
 
 ;------------------------------------------------------
@@ -359,7 +362,6 @@
 ;Test Cases
 ;--------------------------------------------------
 
-;(MyLambda '((lambda (x y) (+ x y)) 10 5))
 ;(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
 ;(startEval '((lambda (x y z a) (* a z)) 3 2 5 4))
 ;(startEval '((lambda (x y z a) (> a z)) 3 2 1 4))
@@ -370,18 +372,19 @@
 ;((lambda (x) (+ x 1)) (* 2 ((lambda (x y) (+ x y)) 7 6)))
 ;(startEval '((lambda (x y) (+ ((lambda (x y) (+ x y)) 7 6) y)) 2 4))
 
-;(startEval '((lambda (x y) (+ x y)) 2 (lambda (x y) (+ x y)) 2 4))
+;(startEval '((lambda (x y) (+ x y)) 2 ((lambda (z a) (+ z a)) 2 4)))
 
 ;(startEval '(let ([x 3] [y 2] [z 2]) (+ x (+ y z))))
-;(startEval '(let ((x (1  2 3)) (y (4 5 6))) (cons x y)))
+;(startEval '(let ((x (1 2 3)) (y (4 5 6))) (cons x y)))
 ;((lambda (n) (* 2 n)) 5)
 
-;(startEval '(let ([x 3]) (+ x x)))
+;(startEval '(let ([x 3][y 2]) (+ x y)))
 ;(startEval '((lambda (x) (/ x x)) 2))
 ;(startEval '(letrec ([fact (lambda (n) (+ 2 n))])(fact 5)))
 ;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 6)))
 ;(letrec ([fact (lambda (x y z) (if (= x 0) 1 (* x (fact (- x 1) y z))))]) (fact 6 7 8))
-(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 10)))
-(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact (+ 1 9))))
-((lambda (n) (* 2 n)) 5)
-((lambda (n) (* 2 n)) (/ 10 2))
+;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 10)))
+;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact ((lambda (n) (* 2 n)) 5))))
+;((lambda (n) (* 2 n)) 5)
+;((lambda (n) (* 2 n)) (/ 10 2))
+;(let ((x '(1 2 3)) (y '(4 5 6))) (cons x y))
