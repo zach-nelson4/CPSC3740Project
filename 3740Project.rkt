@@ -312,24 +312,6 @@
   (pair? list1)
   )
 ;------------------------------------------------------
-;MyRemove function. Removes the first element of the list
-(define (MyRemove ele)
-  (if (null? ele)
-      '()
-      (MyAppend (car ele) (cdr ele))))
-
-;------------------------------------------------------
-;MyAppend function. Appends the right to the left.
-(define (MyAppend left right)
-  (cond
-    [(null? left)
-     (MyRemove right)]
-    [(pair? left)
-     (cons (car left)
-           (MyAppend (cdr left) right))]
-    [else
-     (cons left (MyRemove right))]))
-;------------------------------------------------------
 ;MyLambda function. Given a lambda function, evaluate it by passing it into startEval2. See startEval2's comments for more information.
 
 (define (MyLambda list1 list2 list3)
@@ -385,5 +367,14 @@
 ;--------------------------------------------------
 ;Test Cases
 ;--------------------------------------------------
-
-(print (startEval'(letrec ((fact (lambda (x) (if (= x 0) (quote 1) (* x (fact (- x 1))))))) (fact 6))))
+;(startEval '((lambda (x y z) (car z)) (3 1) (2 1) (4 1)))
+;(startEval '((lambda (x y z a) (* a z)) 3 2 5 4))
+;(startEval '((lambda (x y z a) (> a z)) 3 2 1 4))
+;(startEval '((lambda (x y) (car x)) (3 1) (4 2)))
+;(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
+;(startEval '(+ 3 3))
+;(startEval '((lambda (x y) (+ x y)) 5 4))
+;(startEval '(let ([x 3] [y 2] [z 2]) (+ x (+ y z))))
+;(startEval '(let ((x (1 2 3)) (y (4 5 6))) (cons x y)))
+;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact ((lambda (n) (* 2 n)) 5))))
+(print (startEval'(letrec ((fact (lambda (x) (if (= x 0) (quote 1) (* x (fact (- x 1))))))) (fact 10))))
