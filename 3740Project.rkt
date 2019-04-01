@@ -20,6 +20,7 @@
   (cond
     ;If there is nothing in the list, return the empty list
     [(null? list1) '()]
+    ;If it is not a pair return list
     [(not(pair? list1)) list1]
 
     [(equal? (car list1) 'quote)
@@ -127,15 +128,25 @@
 (define (startEval2 list1 list2 list3)
   ;These statements check to see if the next part contains anything that is not known, such as function names, etc.
       (if (not(pair? list1))
+          ;checks if the name and value lists are empty if so then give list
+          ;else check if evaluation list (list1) is equal to a variale name
+          
           (if (and (empty? list3)(empty? list2))
               list1
+              ;Check if list1 matches a name in the list of variables
+              ;eg. list1= x and list2= (1) list3 = (x)
+              ;then list1 will become 1 because of substitution
+              ;else if the list1 does not match the first element in list3
+              ;then we check the rest of the names in list3 to find one that matches list1 
               (if (equal? list1 (car list3))
                   (car list2)
                   (startEval2 list1 (cdr list2) (cdr list3))
                   )
               )
 
-          ;These conditional statements check to see what the first item in the list is.
+          ;Check if length of list is one and remove redundant brackets
+          ;eg. ((car x)) to (car x)
+          ;else if the length is greater than 1 we check to see what the first item in the list is.
 	  (if (equal? (length list1) 1)
                       (startEval2 (car list1) list2 list3)
 		  (cond
@@ -200,12 +211,19 @@
 		     (MyLetrec list1)]
                     ;If it was not any of those, keep evaluating.
                     [else
+                     ;if the names and values list is empty return list1
                      (if (and (empty? list3)(empty? list2))
-                         list1
+                         ;(if (pair? (car list1)
+                                    ;(startEval2 (append (list (startEval2 (car list1) list2 list3)) (list (startEval2 (cdr list1) list2 list3))) list2 list3))))
+                                    list1
+                                    ;)
+                         ;else check for UNDEF from letrec
                          (if (and (and (pair? (car list1))(equal? (length (car list1)) 2)) (equal? (car(cdr(car list1))) "UNDEF"))
                              (startEval2 (cons (caar list1) (cdr list1)) list2 list3)
                              (if (and (and (pair? (car list2))(equal? (length (car list2)) 2)) (and (equal? (car(cdr(car list2))) "UNDEF") (equal? (car list1) (car list3))))
                                  (startEval2 (cons (caar list2) (cdr list1)) list2 list3)
+                                 ;if it is not undef then it should be just a letrec function name and start that evaluation
+                                 ;eg. (fact (+ 2 2)) then fact gets replaced if fact = (lambda (n) (* 2 n)) then the appended result is ((lambda (n) (* 2 n)) 4)
                                  (startEval2 (append (list (startEval2 (car list1) list2 list3)) (list (startEval2 (cdr list1) list2 list3))) list2 list3))))
                      ])
 	       )
@@ -316,9 +334,11 @@
 ;MyLambda function. Given a lambda function, evaluate it by passing it into startEval2. See startEval2's comments for more information.
 
 (define (MyLambda list1 list2 list3)
-  ;(startEval2 (caddr (car list1)) (append (list (startEval2 (cdr list1) list2 list3)) list2) (append (cadr (car list1)) list3))
-  (if (pair? (startEval2 (cdr list1) list2 list3)) 
-  (startEval2 (caddr (car list1)) (append (cdr list1) list2) (append (cadr (car list1)) list3))
+  ;check if pair
+  (if (pair? (startEval2 (cdr list1) list2 list3))
+  ;dont add to a list if it is a pair 
+  (startEval2 (caddr (car list1)) (append (startEval2 (cdr list1) list2 list3) list2) (append (cadr (car list1)) list3))
+  ;do add to a list if it is a not pair 
   (startEval2 (caddr (car list1)) (append (list (startEval2 (cdr list1) list2 list3)) list2) (append (cadr (car list1)) list3)))
   )
 
@@ -332,11 +352,13 @@
 ;------------------------------------------------------
 ;MyLetAttributeNames function.
 (define (MyLetAttributesNames list1)
+  ;extracting attribute names from let expression 
   (cond [(not(pair? list1)) list1]
         [(pair? list1) (cons (car(car list1)) (MyLetAttributesNames (cdr list1)))]
   )
 )
 (define (MyLetAttributesValues list1)
+   ;extracting attribute values from let expression 
    (cond [(not(pair? list1)) list1]
         [(pair? list1) (cons (car(cdr(car list1))) (MyLetAttributesValues (cdr list1)))]
   )
@@ -348,12 +370,15 @@
   (startEval2 (caddr list1) (MyLetrecAttributesValues (cadr list1)) (MyLetrecAttributesNames (cadr list1)))
 )
 (define (MyLetrecAttributesNames list1)
+   ;extracting attribute names from letrec expression 
   (cond [(not(pair? list1)) list1]
         [(pair? list1) (cons (car(car list1)) (MyLetrecAttributesNames (cdr list1)))]
   )
 )
 (define (MyLetrecAttributesValues list1)
+   ;extracting attribute values from letrec expression 
    (cond [(not(pair? list1)) list1]
+        ;adds UNDEF to values in letrec 
         [(pair? list1) (cons (cons (car(cdr(car list1))) (list "UNDEF")) (MyLetrecAttributesValues (cdr list1)))]
   )
 )
@@ -370,9 +395,9 @@
 ;(startEval '(+ 3 3))
 
 ;((lambda (x) (+ x 1)) (* 2 ((lambda (x y) (+ x y)) 7 6)))
-;(startEval '((lambda (x y) (+ ((lambda (x y) (+ x y)) 7 6) y)) 2 4))
+;(startEval '((lambda (x) (+ x 1)) (* 2 ((lambda (x y) (+ x y)) 7 6))))
 
-;(startEval '((lambda (x y) (+ x y)) 2 ((lambda (z a) (+ z a)) 2 4)))
+(startEval '((lambda (x y) (+ x y)) (+ 3 3) (+ 2 2)))
 
 ;(startEval '(let ([x 3] [y 2] [z 2]) (+ x (+ y z))))
 ;(startEval '(let ((x (1 2 3)) (y (4 5 6))) (cons x y)))
