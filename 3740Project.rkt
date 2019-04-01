@@ -126,6 +126,7 @@
 ;--------------------------------------------------
 
 (define (startEval2 list1 list2 list3)
+  (if (empty? list1) '()  
   ;These statements check to see if the next part contains anything that is not known, such as function names, etc.
       (if (not(pair? list1))
           ;checks if the name and value lists are empty if so then give list
@@ -152,7 +153,7 @@
 		  (cond
                     ;If the first item in the list is a quote
 		    [(and (pair? list1) (equal? (car list1) 'quote))
-		     (MyQuote(startEval2 (MyRemove (cadr list1)) list2 list3))]
+		     (startEval2 (cadr list1) list2 list3)]
                     ;If the first item in the list is +
 		    [(and (pair? list1) (equal? (car list1) '+))
 		     (MyAdd(startEval2 (cadr list1) list2 list3)(startEval2 (caddr list1) list2 list3))]
@@ -213,10 +214,7 @@
                     [else
                      ;if the names and values list is empty return list1
                      (if (and (empty? list3)(empty? list2))
-                         ;(if (pair? (car list1)
-                                    ;(startEval2 (append (list (startEval2 (car list1) list2 list3)) (list (startEval2 (cdr list1) list2 list3))) list2 list3))))
-                                    list1
-                                    ;)
+                         list1 
                          ;else check for UNDEF from letrec
                          (if (and (and (pair? (car list1))(equal? (length (car list1)) 2)) (equal? (car(cdr(car list1))) "UNDEF"))
                              (startEval2 (cons (caar list1) (cdr list1)) list2 list3)
@@ -228,6 +226,7 @@
                      ])
 	       )
 	)
+      )
   )
 
 ;---------------------------------------------------------
@@ -387,29 +386,4 @@
 ;Test Cases
 ;--------------------------------------------------
 
-;(startEval '((lambda (x y z) (car z)) (3 1) (7 3) (4 3)))
-;(startEval '((lambda (x y z a) (* a z)) 3 2 5 4))
-;(startEval '((lambda (x y z a) (> a z)) 3 2 1 4))
-;(startEval '((lambda (x y) (car x)) (3 1) (4 2)))
-;(startEval '((lambda (x y) (+ (* y x) (+ x (+ x y)))) 5 2))
-;(startEval '(+ 3 3))
-
-;((lambda (x) (+ x 1)) (* 2 ((lambda (x y) (+ x y)) 7 6)))
-;(startEval '((lambda (x) (+ x 1)) (* 2 ((lambda (x y) (+ x y)) 7 6))))
-
-(startEval '((lambda (x y) (+ x y)) (+ 3 3) (+ 2 2)))
-
-;(startEval '(let ([x 3] [y 2] [z 2]) (+ x (+ y z))))
-;(startEval '(let ((x (1 2 3)) (y (4 5 6))) (cons x y)))
-;((lambda (n) (* 2 n)) 5)
-
-;(startEval '(let ([x 3][y 2]) (+ x y)))
-;(startEval '((lambda (x) (/ x x)) 2))
-;(startEval '(letrec ([fact (lambda (n) (+ 2 n))])(fact 5)))
-;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 6)))
-;(letrec ([fact (lambda (x y z) (if (= x 0) 1 (* x (fact (- x 1) y z))))]) (fact 6 7 8))
-;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact 10)))
-;(startEval '(letrec ([fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1)))))]) (fact ((lambda (n) (* 2 n)) 5))))
-;((lambda (n) (* 2 n)) 5)
-;((lambda (n) (* 2 n)) (/ 10 2))
-;(let ((x '(1 2 3)) (y '(4 5 6))) (cons x y))
+(print (startEval'(letrec ((fact (lambda (x) (if (= x 0) (quote 1) (* x (fact (- x 1))))))) (fact 6))))
